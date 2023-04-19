@@ -41,15 +41,27 @@ def submit():
 
     # Agregar mensaje si la respuesta es 201 created
     if response.status_code == 201:
+        # Eliminar label existente si es que hay alguno
+        if hasattr(window, "response_message"):
+            window.response_message.pack_forget()
+
+        # Crear nuevo label con mensaje de éxito
         response_message = tk.Label(
             window, text="Anime added successfully!", font=("Arial", 16), fg="green")
         response_message.pack()
+        window.response_message = response_message
 
     # Agregar mensaje si el código de estado es 422 Validation Error
     elif response.status_code == 422:
+        # Eliminar label existente si es que hay alguno
+        if hasattr(window, "response_message"):
+            window.response_message.pack_forget()
+
+        # Crear nuevo label con mensaje de error
         response_message = tk.Label(
             window, text="Validation Error. Please check your data!", font=("Arial", 16), fg="red")
         response_message.pack()
+        window.response_message = response_message
 
 
 def clear():
@@ -60,6 +72,9 @@ def clear():
     season_entry.delete(0, tk.END)
     genres_entry.delete(0, tk.END)
     image_url_entry.delete(0, tk.END)
+    # Eliminar label existente si es que hay alguno
+    if hasattr(window, "response_message"):
+        window.response_message.pack_forget()
 
 
 # Crear una ventana
