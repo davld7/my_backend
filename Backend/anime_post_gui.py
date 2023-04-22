@@ -36,15 +36,17 @@ def submit():
     # Enviar la solicitud POST con los datos en formato JSON y los encabezados adicionales
     response = requests.post(url, data=anime_json, headers=anime_headers)
 
-    # Imprimir la respuesta de la solicitud POST
-    print(response.text)
-
     # Agregar mensaje si la respuesta es 201 created
     if response.status_code == 201:
         # Eliminar label existente si es que hay alguno
         if hasattr(window, "response_message"):
             window.response_message.pack_forget()
-
+        # Parsear respuesta a objeto json
+        anime_dict = json.loads(response.content)
+        # Asignar el ID al campo de entrada de texto
+        id_entry.delete(0, tk.END)
+        id_entry.insert(
+            0, f'https://fastapi-1-v7692141.deta.app/animes/search_id/{anime_dict["id"]}')
         # Crear nuevo label con mensaje de éxito
         response_message = tk.Label(
             window, text="Anime added successfully!", font=("Arial", 16), fg="green")
@@ -56,10 +58,20 @@ def submit():
         # Eliminar label existente si es que hay alguno
         if hasattr(window, "response_message"):
             window.response_message.pack_forget()
-
         # Crear nuevo label con mensaje de error
         response_message = tk.Label(
             window, text="Validation Error. Please check your data!", font=("Arial", 16), fg="red")
+        response_message.pack()
+        window.response_message = response_message
+
+    # Agregar mensaje si el código de estado es 404 Not Found
+    elif response.status_code == 422:
+        # Eliminar label existente si es que hay alguno
+        if hasattr(window, "response_message"):
+            window.response_message.pack_forget()
+        # Crear nuevo label con mensaje de error
+        response_message = tk.Label(
+            window, text="Not Found!", font=("Arial", 16), fg="red")
         response_message.pack()
         window.response_message = response_message
 
@@ -75,12 +87,15 @@ def clear():
     # Eliminar label existente si es que hay alguno
     if hasattr(window, "response_message"):
         window.response_message.pack_forget()
+    # Borrar ID del campo de entrada de texto
+    id_entry.delete(0, tk.END)
+    name_entry.focus_set()
 
 
 # Crear una ventana
 window = tk.Tk()
 window.title("Anime Post - Full Stack Team API")
-window.geometry("500x500")
+window.geometry("550x550")
 window.attributes('-topmost', True)
 
 
@@ -129,6 +144,11 @@ submit_button.pack()
 clear_button = tk.Button(window, text="Clear",
                          command=clear, font=("Arial", 16))
 clear_button.pack()
+
+id_label = tk.Label(window, text="Get Anime Detail:", font=("Arial", 16))
+id_label.pack()
+id_entry = tk.Entry(window, font=("Arial", 16))
+id_entry.pack(ipadx=100)
 
 # Iniciar el bucle principal de la ventana
 window.mainloop()
